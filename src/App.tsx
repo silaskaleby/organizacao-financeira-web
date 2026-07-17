@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AlertTriangle, CheckCircle2 } from 'lucide-react';
+import type { EmailOtpType } from '@supabase/supabase-js';
 import { LoginForm } from './components/auth/LoginForm';
 import { RegisterForm } from './components/auth/RegisterForm';
 import { FinanceDashboard } from './components/dashboard/FinanceDashboard';
@@ -10,6 +11,20 @@ import { supabase } from './lib/supabase';
 import { getFriendlyAuthError } from './utils/authErrors';
 
 const emailConfirmationPath = '/email-confirmado';
+const emailConfirmationCopy = {
+  appName: 'ORGANIZA\u00c7\u00c3O FINANCEIRA',
+  validatingTitle: 'Confirmando seu e-mail\u2026',
+  validatingMessage: 'Aguarde alguns instantes.',
+  successTitle: 'E-mail confirmado!',
+  successMessage:
+    'Seu endere\u00e7o de e-mail foi validado com sucesso. Agora voc\u00ea j\u00e1 pode entrar na sua conta.',
+  successButton: 'Ir para o login',
+  errorTitle: 'N\u00e3o foi poss\u00edvel confirmar o e-mail',
+  errorMessage: 'O link pode estar inv\u00e1lido ou expirado.',
+  errorButton: 'Voltar para o login',
+  loadingLabel: 'Confirmando e-mail',
+};
+const allowedEmailOtpTypes = ['email', 'signup'] as const satisfies readonly EmailOtpType[];
 
 type EmailConfirmationStatus = 'validating' | 'success' | 'error';
 
@@ -32,7 +47,21 @@ function LoadingScreen({ message }: { message: string }) {
 }
 
 function cleanEmailConfirmationUrl() {
-  window.history.replaceState(null, document.title, `${window.location.origin}${emailConfirmationPath}`);
+  window.history.replaceState({}, document.title, emailConfirmationPath);
+}
+
+function getAllowedEmailOtpType(type: string | null) {
+  return allowedEmailOtpTypes.find((allowedType) => allowedType === type) ?? null;
+}
+
+async function signOutLocalSession() {
+  if (!supabase) return;
+
+  try {
+    await supabase.auth.signOut({ scope: 'local' });
+  } catch {
+    // Keep the public confirmation page stable even if there is no local session to clear.
+  }
 }
 
 async function processEmailConfirmationReturn() {
@@ -54,17 +83,27 @@ async function processEmailConfirmationReturn() {
         searchParams.has('error_code');
       const accessToken = hashParams.get('access_token');
       const refreshToken = hashParams.get('refresh_token');
+      const tokenHash = searchParams.get('token_hash');
+      const otpType = getAllowedEmailOtpType(searchParams.get('type'));
       const code = searchParams.get('code');
       const hasImplicitSession = Boolean(accessToken && refreshToken);
       const hasConfirmationPayload = hasImplicitSession || Boolean(code);
 
-      if (!supabase || hasError || !hasConfirmationPayload) {
+      if (!supabase || hasError) {
         cleanEmailConfirmationUrl();
         return 'error';
       }
 
       try {
-        if (code) {
+        if (tokenHash && otpType) {
+          const { error } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: otpType,
+          });
+          if (error) throw error;
+        } else if (tokenHash || searchParams.has('type')) {
+          throw new Error('Invalid email confirmation link.');
+        } else if (code) {
           const { error } = await supabase.auth.exchangeCodeForSession(code);
           if (error) throw error;
         } else if (accessToken && refreshToken) {
@@ -73,17 +112,15 @@ async function processEmailConfirmationReturn() {
             refresh_token: refreshToken,
           });
           if (error) throw error;
+        } else if (!hasConfirmationPayload) {
+          throw new Error('Missing email confirmation token.');
         }
 
-        await supabase.auth.signOut();
+        await signOutLocalSession();
         cleanEmailConfirmationUrl();
         return 'success';
       } catch {
-        try {
-          await supabase.auth.signOut();
-        } catch {
-          // Ignore sign-out failures here; the confirmation page must stay public.
-        }
+        await signOutLocalSession();
         cleanEmailConfirmationUrl();
         return 'error';
       }
@@ -119,7 +156,7 @@ function EmailConfirmedScreen({ onGoToLogin }: { onGoToLogin: () => void }) {
       >
         <div className={`email-confirmation-icon ${isSuccess ? 'success' : 'neutral'}`}>
           {isValidating ? (
-            <span className="loading-dot small" aria-label="Confirmando e-mail" role="status" />
+            <span className="loading-dot small" aria-label={emailConfirmationCopy.loadingLabel} role="status" />
           ) : isSuccess ? (
             <CheckCircle2 size={30} aria-hidden="true" />
           ) : (
@@ -127,25 +164,25 @@ function EmailConfirmedScreen({ onGoToLogin }: { onGoToLogin: () => void }) {
           )}
         </div>
         <div className="auth-copy">
-          <span>OrganizaÃ§Ã£o financeira</span>
+          <span>{emailConfirmationCopy.appName}</span>
           <h1>
             {isValidating
-              ? 'Confirmando seu e-mail...'
+              ? emailConfirmationCopy.validatingTitle
               : isSuccess
-                ? 'E-mail confirmado!'
-                : 'NÃ£o foi possÃ­vel confirmar o e-mail'}
+                ? emailConfirmationCopy.successTitle
+                : emailConfirmationCopy.errorTitle}
           </h1>
           <p>
             {isValidating
-              ? 'Aguarde alguns instantes.'
+              ? emailConfirmationCopy.validatingMessage
               : isSuccess
-                ? 'Seu endereÃ§o de e-mail foi validado com sucesso. Agora vocÃª jÃ¡ pode entrar na sua conta.'
-                : 'O link pode estar invÃ¡lido ou expirado. Volte para a tela de login e tente criar a conta novamente ou solicitar um novo link futuramente.'}
+                ? emailConfirmationCopy.successMessage
+                : emailConfirmationCopy.errorMessage}
           </p>
         </div>
         {!isValidating ? (
           <button className="primary-action" type="button" onClick={onGoToLogin}>
-            {isSuccess ? 'Ir para o login' : 'Voltar para o login'}
+            {isSuccess ? emailConfirmationCopy.successButton : emailConfirmationCopy.errorButton}
           </button>
         ) : null}
       </section>
