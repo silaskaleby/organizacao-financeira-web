@@ -1,4 +1,6 @@
-# Organizador Financeiro Web
+![Bolso Norte](./public/brand/bolso-norte-logo-horizontal.png)
+
+# Bolso Norte
 
 Aplicacao web responsiva para organizacao financeira pessoal, com painel mensal, entradas, gastos, contas, metas, reserva de emergencia e investimentos.
 
@@ -6,22 +8,21 @@ Aplicacao web responsiva para organizacao financeira pessoal, com painel mensal,
 
 Versao beta em preparacao para teste publico.
 
-Esta e uma versao beta disponibilizada gratuitamente para testes. Recursos, limites, disponibilidade e formas de acesso poderao ser alterados futuramente, incluindo a criacao de planos pagos. Nenhum preco esta anunciado nesta etapa.
+Esta versao beta e disponibilizada gratuitamente para testes. Recursos, limites, disponibilidade e formas de acesso poderao ser alterados futuramente, incluindo a criacao de planos pagos. Nenhum preco esta anunciado nesta etapa.
 
-## Acesse o projeto
+## Acesse
 
-[🚀 Acessar o Organizador Financeiro](https://organizacao-financeira-web.vercel.app/)
+[Abrir o Bolso Norte](https://organizacao-financeira-web.vercel.app/)
 
-Depois do deploy, substitua o marcador acima pela URL oficial gerada pela Vercel.
+O dominio `bolsonorte.com.br` esta em preparacao e sera conectado futuramente.
 
 ## Demonstracao
 
-<img width="1667" height="891" alt="{F02F9E90-A0C0-409D-9BE9-2D651C694BC6}" src="https://github.com/user-attachments/assets/60730fa0-393e-4c85-afbb-4e2c3b8c1793" />
+<img width="1667" height="891" alt="Painel desktop do Bolso Norte" src="https://github.com/user-attachments/assets/60730fa0-393e-4c85-afbb-4e2c3b8c1793" />
 
+<img width="1889" height="902" alt="Painel financeiro do Bolso Norte" src="https://github.com/user-attachments/assets/71e2686b-6375-40a8-824b-196bb1a5f9f4" />
 
-<img width="1889" height="902" alt="{14FC82CF-5E53-4D41-B8CE-417B7A4C7D5B}" src="https://github.com/user-attachments/assets/71e2686b-6375-40a8-824b-196bb1a5f9f4" />
-
-<img width="388" height="819" alt="{CE844DD3-BC31-4DEE-8417-B40F152A2DE6}" src="https://github.com/user-attachments/assets/672ca398-e5a3-4cd7-ad2a-b9175a860c34" />
+<img width="388" height="819" alt="Versao mobile do Bolso Norte" src="https://github.com/user-attachments/assets/672ca398-e5a3-4cd7-ad2a-b9175a860c34" />
 
 ## Funcionalidades
 
@@ -45,6 +46,28 @@ Depois do deploy, substitua o marcador acima pela URL oficial gerada pela Vercel
 - Recharts
 - Lucide React
 - CSS tradicional
+
+## Desenvolvimento local
+
+1. Instale as dependencias:
+
+```bash
+npm install
+```
+
+2. Crie um arquivo `.env` a partir do `.env.example` e informe as variaveis publicas do projeto Supabase.
+
+3. Execute o ambiente local:
+
+```bash
+npm run dev
+```
+
+4. Gere uma build de producao:
+
+```bash
+npm run build
+```
 
 ## Seguranca e privacidade
 

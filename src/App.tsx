@@ -12,7 +12,7 @@ import { getFriendlyAuthError } from './utils/authErrors';
 
 const emailConfirmationPath = '/email-confirmado';
 const emailConfirmationCopy = {
-  appName: 'ORGANIZA\u00c7\u00c3O FINANCEIRA',
+  appName: 'BOLSO NORTE',
   validatingTitle: 'Confirmando seu e-mail\u2026',
   validatingMessage: 'Aguarde alguns instantes.',
   successTitle: 'E-mail confirmado!',
@@ -154,6 +154,13 @@ function EmailConfirmedScreen({ onGoToLogin }: { onGoToLogin: () => void }) {
         className={`auth-card confirmation-card ${isSuccess ? '' : 'confirmation-card-neutral'}`.trim()}
         aria-live="polite"
       >
+        <img
+          className="auth-brand-logo email-confirmation-brand"
+          src="/brand/bolso-norte-logo-horizontal.png"
+          alt="Bolso Norte"
+          width="1956"
+          height="582"
+        />
         <div className={`email-confirmation-icon ${isSuccess ? 'success' : 'neutral'}`}>
           {isValidating ? (
             <span className="loading-dot small" aria-label={emailConfirmationCopy.loadingLabel} role="status" />
@@ -164,7 +171,7 @@ function EmailConfirmedScreen({ onGoToLogin }: { onGoToLogin: () => void }) {
           )}
         </div>
         <div className="auth-copy">
-          <span>{emailConfirmationCopy.appName}</span>
+          <span className="visually-hidden">{emailConfirmationCopy.appName}</span>
           <h1>
             {isValidating
               ? emailConfirmationCopy.validatingTitle
@@ -207,6 +214,13 @@ function ConfirmationPendingScreen({
   return (
     <main className="auth-shell">
       <section className="auth-card confirmation-card">
+        <img
+          className="auth-brand-logo"
+          src="/brand/bolso-norte-logo-horizontal.png"
+          alt="Bolso Norte"
+          width="1956"
+          height="582"
+        />
         <CheckCircle2 size={38} aria-hidden="true" />
         <div className="auth-copy">
           <span>Cadastro enviado</span>

@@ -50,8 +50,15 @@ export function RegisterForm({ onBackToLogin, onConfirmationPending }: RegisterF
 
   return (
     <form className="auth-card" onSubmit={handleSubmit} noValidate>
+      <img
+        className="auth-brand-logo"
+        src="/brand/bolso-norte-logo-horizontal.png"
+        alt="Bolso Norte"
+        width="1956"
+        height="582"
+      />
       <div className="auth-copy">
-        <span>Organização financeira</span>
+        <span className="visually-hidden">Bolso Norte</span>
         <h1>Criar conta</h1>
         <p>Use um e-mail válido e uma senha com pelo menos 8 caracteres.</p>
       </div>

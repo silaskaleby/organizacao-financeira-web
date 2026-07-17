@@ -23,10 +23,14 @@ export function DashboardHeader({
           <p>{profile.motto}</p>
         </div>
 
-        <div className="header-visual" aria-hidden="true">
-          {[34, 48, 62, 78, 92].map((height) => (
-            <span key={height} style={{ height: `${height}%` }} />
-          ))}
+        <div className="header-visual">
+          <img
+            className="header-brand-mark"
+            src="/brand/bolso-norte-symbol.png"
+            alt="Bolso Norte"
+            width="837"
+            height="940"
+          />
         </div>
       </div>
 
@@ -52,7 +56,7 @@ export function DashboardHeader({
       </div>
 
       <div className="month-title">
-        <span>Organização de {profile.selectedMonth}</span>
+        <span>Bolso Norte • {profile.selectedMonth}</span>
       </div>
     </header>
   );
