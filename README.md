@@ -12,9 +12,9 @@ Esta versao beta e disponibilizada gratuitamente para testes. Recursos, limites,
 
 ## Acesse
 
-[Abrir o Bolso Norte](https://organizacao-financeira-web.vercel.app/)
+[Abrir o Bolso Norte](https://bolsonorte.com.br/)
 
-O dominio `bolsonorte.com.br` esta em preparacao e sera conectado futuramente.
+Dominio oficial: `https://bolsonorte.com.br`.
 
 ## Demonstracao
 
