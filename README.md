@@ -10,7 +10,7 @@ Esta e uma versao beta disponibilizada gratuitamente para testes. Recursos, limi
 
 ## Acesse o projeto
 
-[🚀 Acessar o Organizador Financeiro](COLOCAR_URL_DA_VERCEL_AQUI)
+[🚀 Acessar o Organizador Financeiro](https://organizacao-financeira-web.vercel.app/)
 
 Depois do deploy, substitua o marcador acima pela URL oficial gerada pela Vercel.
 
