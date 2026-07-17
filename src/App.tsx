@@ -1,12 +1,24 @@
-import { useState } from 'react';
-import { CheckCircle2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { LoginForm } from './components/auth/LoginForm';
 import { RegisterForm } from './components/auth/RegisterForm';
 import { FinanceDashboard } from './components/dashboard/FinanceDashboard';
 import { InitialSetupForm } from './components/onboarding/InitialSetupForm';
 import { SettingsModal } from './components/settings/SettingsModal';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { supabase } from './lib/supabase';
 import { getFriendlyAuthError } from './utils/authErrors';
+
+const emailConfirmationPath = '/email-confirmado';
+
+type EmailConfirmationStatus = 'validating' | 'success' | 'error';
+
+let emailConfirmationProcess:
+  | {
+      url: string;
+      promise: Promise<EmailConfirmationStatus>;
+    }
+  | null = null;
 
 function LoadingScreen({ message }: { message: string }) {
   return (
@@ -14,6 +26,128 @@ function LoadingScreen({ message }: { message: string }) {
       <section className="loading-card" aria-live="polite">
         <span className="loading-dot" aria-hidden="true" />
         <h1>{message}</h1>
+      </section>
+    </main>
+  );
+}
+
+function cleanEmailConfirmationUrl() {
+  window.history.replaceState(null, document.title, `${window.location.origin}${emailConfirmationPath}`);
+}
+
+async function processEmailConfirmationReturn() {
+  const currentUrl = window.location.href;
+
+  if (emailConfirmationProcess?.url === currentUrl) {
+    return emailConfirmationProcess.promise;
+  }
+
+  emailConfirmationProcess = {
+    url: currentUrl,
+    promise: (async () => {
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+      const searchParams = new URLSearchParams(window.location.search);
+      const hasError =
+        hashParams.has('error') ||
+        hashParams.has('error_code') ||
+        searchParams.has('error') ||
+        searchParams.has('error_code');
+      const accessToken = hashParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token');
+      const code = searchParams.get('code');
+      const hasImplicitSession = Boolean(accessToken && refreshToken);
+      const hasConfirmationPayload = hasImplicitSession || Boolean(code);
+
+      if (!supabase || hasError || !hasConfirmationPayload) {
+        cleanEmailConfirmationUrl();
+        return 'error';
+      }
+
+      try {
+        if (code) {
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) throw error;
+        } else if (accessToken && refreshToken) {
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+          if (error) throw error;
+        }
+
+        await supabase.auth.signOut();
+        cleanEmailConfirmationUrl();
+        return 'success';
+      } catch {
+        try {
+          await supabase.auth.signOut();
+        } catch {
+          // Ignore sign-out failures here; the confirmation page must stay public.
+        }
+        cleanEmailConfirmationUrl();
+        return 'error';
+      }
+    })(),
+  };
+
+  return emailConfirmationProcess.promise;
+}
+
+function EmailConfirmedScreen({ onGoToLogin }: { onGoToLogin: () => void }) {
+  const [status, setStatus] = useState<EmailConfirmationStatus>('validating');
+
+  useEffect(() => {
+    let active = true;
+
+    processEmailConfirmationReturn().then((result) => {
+      if (active) setStatus(result);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const isValidating = status === 'validating';
+  const isSuccess = status === 'success';
+
+  return (
+    <main className="auth-shell">
+      <section
+        className={`auth-card confirmation-card ${isSuccess ? '' : 'confirmation-card-neutral'}`.trim()}
+        aria-live="polite"
+      >
+        <div className={`email-confirmation-icon ${isSuccess ? 'success' : 'neutral'}`}>
+          {isValidating ? (
+            <span className="loading-dot small" aria-label="Confirmando e-mail" role="status" />
+          ) : isSuccess ? (
+            <CheckCircle2 size={30} aria-hidden="true" />
+          ) : (
+            <AlertTriangle size={30} aria-hidden="true" />
+          )}
+        </div>
+        <div className="auth-copy">
+          <span>OrganizaÃ§Ã£o financeira</span>
+          <h1>
+            {isValidating
+              ? 'Confirmando seu e-mail...'
+              : isSuccess
+                ? 'E-mail confirmado!'
+                : 'NÃ£o foi possÃ­vel confirmar o e-mail'}
+          </h1>
+          <p>
+            {isValidating
+              ? 'Aguarde alguns instantes.'
+              : isSuccess
+                ? 'Seu endereÃ§o de e-mail foi validado com sucesso. Agora vocÃª jÃ¡ pode entrar na sua conta.'
+                : 'O link pode estar invÃ¡lido ou expirado. Volte para a tela de login e tente criar a conta novamente ou solicitar um novo link futuramente.'}
+          </p>
+        </div>
+        {!isValidating ? (
+          <button className="primary-action" type="button" onClick={onGoToLogin}>
+            {isSuccess ? 'Ir para o login' : 'Voltar para o login'}
+          </button>
+        ) : null}
       </section>
     </main>
   );
@@ -162,6 +296,26 @@ function AuthGate() {
 }
 
 function App() {
+  const [currentPath, setCurrentPath] = useState(() => window.location.pathname);
+
+  useEffect(() => {
+    const updatePath = () => setCurrentPath(window.location.pathname);
+
+    window.addEventListener('popstate', updatePath);
+    return () => window.removeEventListener('popstate', updatePath);
+  }, []);
+
+  if (currentPath === emailConfirmationPath) {
+    return (
+      <EmailConfirmedScreen
+        onGoToLogin={() => {
+          window.history.replaceState(null, document.title, window.location.origin);
+          setCurrentPath('/');
+        }}
+      />
+    );
+  }
+
   return (
     <AuthProvider>
       <AuthGate />
