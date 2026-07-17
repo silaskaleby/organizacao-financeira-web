@@ -16,23 +16,12 @@ Depois do deploy, substitua o marcador acima pela URL oficial gerada pela Vercel
 
 ## Demonstracao
 
-<!--
-Depois do deploy, adicione uma captura do dashboard desktop em:
-readme-assets/dashboard-desktop.png
+<img width="1667" height="891" alt="{F02F9E90-A0C0-409D-9BE9-2D651C694BC6}" src="https://github.com/user-attachments/assets/60730fa0-393e-4c85-afbb-4e2c3b8c1793" />
 
-Em seguida, substitua este comentario por:
-![Dashboard desktop](./readme-assets/dashboard-desktop.png)
--->
 
-<!--
-Adicionar captura da versao mobile:
-readme-assets/dashboard-mobile.png
--->
+<img width="1889" height="902" alt="{14FC82CF-5E53-4D41-B8CE-417B7A4C7D5B}" src="https://github.com/user-attachments/assets/71e2686b-6375-40a8-824b-196bb1a5f9f4" />
 
-<!--
-Adicionar captura dos graficos e indicadores:
-readme-assets/graficos.png
--->
+<img width="388" height="819" alt="{CE844DD3-BC31-4DEE-8417-B40F152A2DE6}" src="https://github.com/user-attachments/assets/672ca398-e5a3-4cd7-ad2a-b9175a860c34" />
 
 ## Funcionalidades
 
